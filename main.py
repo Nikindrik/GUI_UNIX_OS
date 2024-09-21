@@ -2,9 +2,7 @@ import pygame
 import sys
 import input_box
 import console
-import random
-import os
-from PIL import Image # Для иконки потом
+from color import Color as Color
 
 pygame.init()
 
@@ -13,10 +11,7 @@ pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((650, 500))
 pygame.display.set_caption('UNIX GUI emulation')
 
-white = (255, 255, 255)
-gray = (200, 200, 200)
-
-def kill_this_fucking_program():
+def alert_detah():
     pygame.quit()
     sys.exit()
 
@@ -33,7 +28,7 @@ def main():
 
             inputbox.handle_event(event)
 
-        screen.fill((white))
+        screen.fill(Color.anthracite)
         console_output.draw(screen)
         inputbox.draw(screen)
 
