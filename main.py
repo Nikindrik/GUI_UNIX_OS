@@ -8,6 +8,8 @@ from PIL import Image # Для иконки потом
 
 pygame.init()
 
+icon = pygame.image.load('source/img/UNIX_GUI_icon.png')
+pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((650, 500))
 pygame.display.set_caption('UNIX GUI emulation')
 
