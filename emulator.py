@@ -1,16 +1,16 @@
-import pygame
 import console
-import main
 import input_box
 import os
 
-files_list=[]
+files_list = []
 
 def command_help():
     console.text_list.append("List of commands:")
     console.text_list.append(" help")
     console.text_list.append(" ls")
     console.text_list.append(" cd")
+    console.text_list.append("    cd with .. example 'cd ..'")
+    console.text_list.append("    cd with path example 'cd /path'")
     console.text_list.append(" exit")
     console.text_list.append(" wc")
     console.text_list.append(" mv")
@@ -30,8 +30,15 @@ def command_ls():
     for i in range(len(files_list)):
         console.text_list.append(files_list[i])
 
-def command_cd():
-    pass
+def command_cd(path):
+    if path != '..':
+        new_dir = os.getcwd() + path
+        if os.path.isdir(new_dir):
+            os.chdir(new_dir)
+        else:
+            console.text_list.append("ERROR with cd command")
+    else:
+        os.chdir('..')
 
 def command_wc():
     pass
@@ -45,6 +52,7 @@ class Emulator():
         pass
 
     def read_command(self, command):
+        parts = command.split(" ")
         if command == "help":
             command_help()
         elif command == "clear":
@@ -53,8 +61,8 @@ class Emulator():
             exit()
         elif command == "ls":
             command_ls()
-        elif command == "cd":
-            command_cd()
+        elif parts[0] == "cd" and len(parts) > 1:
+            command_cd(parts[1])
         elif command == "wc":
             command_wc()
         elif command == "mv":

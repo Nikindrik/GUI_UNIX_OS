@@ -4,6 +4,7 @@ import input_box
 import console
 from color import Color as Color
 
+
 pygame.init()
 
 icon = pygame.image.load('source/img/UNIX_GUI_icon.png')
@@ -20,15 +21,13 @@ def main():
     console_output = console.ConsoleOutput(25, 18, 90, 600, 375)
     inputbox = input_box.InputBox(10, 50, 615, 30, 25)
     done = False
-
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-
             inputbox.handle_event(event)
 
-        screen.fill(Color.anthracite)
+        screen.fill(Color.graphite_grey)
         console_output.draw(screen)
         inputbox.draw(screen)
 

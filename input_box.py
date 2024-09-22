@@ -1,19 +1,21 @@
 import pygame
 import console
 import emulator
+from color import Color
 
-console_output=console.ConsoleOutput
-emulator_obj=emulator.Emulator
 
-input_history=[]
-history_step=0
+console_output = console.ConsoleOutput
+emulator_obj = emulator.Emulator
+
+input_history = []
+history_step = 0
 
 
 class InputBox:
     def __init__(self, x, y, w, h, font_size):
         self.rect = pygame.Rect(x, y, w, h)
-        self.color_inactive = (100, 100, 100)
-        self.color_active = (0, 0, 0)
+        self.color_inactive = (0, 0, 0)
+        self.color_active = Color.anactice_white
         self.color = self.color_inactive
         self.active = False
         self.text = ''
@@ -33,7 +35,7 @@ class InputBox:
         if event.type == pygame.KEYDOWN:
             if self.active:
                 if event.key == pygame.K_RETURN:
-                    if self.text!='':
+                    if self.text != '':
                         emulator.Emulator.read_command(self, self.text)
                         self.text = ''
                 elif event.key == pygame.K_BACKSPACE:
@@ -42,8 +44,7 @@ class InputBox:
                     pass
                 else:
                     self.text += event.unicode
-
-        self.txt_surface = self.font.render(self.text, True, self.color)
+        self.txt_surface = self.font.render(self.text, True, Color.text_white)
 
     def draw(self, screen):
         screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
