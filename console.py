@@ -14,8 +14,8 @@ class ConsoleOutput:
         self.line_height = self.font.get_height()
 
     def draw(self, screen):
-        global text_animation_y, text_list, text_animation_step
-        '''if text_animation_step == 1:
+        '''global text_animation_y, text_list, text_animation_step
+        if text_animation_step == 1:
             if text_animation_y < 25:
                 text_animation_y += 0.2
                 if text_animation_y >= 25:
@@ -25,7 +25,7 @@ class ConsoleOutput:
                 text_animation_y -= 0.2
                 if text_animation_y <= 15:
                     text_animation_step = 1'''
-        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)
+        pygame.draw.rect(screen, Color.black, self.rect, 2)
 
         if len(text_list) > 18:
             text_list.pop(0)

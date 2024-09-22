@@ -21,6 +21,7 @@ def main():
     console_output = console.ConsoleOutput(25, 18, 90, 600, 375)
     inputbox = input_box.InputBox(10, 50, 615, 30, 25)
     done = False
+
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
