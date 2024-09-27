@@ -6,6 +6,7 @@ import input_box  # Импортируем модуль input_box
 files_list = []
 current_dir = ""
 
+
 def command_help():
     console.text_list.append("List of commands:")
     console.text_list.append(" help")
@@ -18,26 +19,28 @@ def command_help():
 def command_clear():
     console.text_list.clear()
 
-def command_ls(archive_path):
-    global files_list
-    files_list.clear()
-    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-        for file in zip_ref.namelist():
-            if file.startswith(current_dir):
-                files_list.append(file)
-    for file in files_list:
-        console.text_list.append(file)
+current_dir = ""  # Путь в архиве, где находимся
 
 def command_cd(path, archive_path):
     global current_dir
-    if path == '..':
-        if '/' in current_dir:
-            current_dir = '/'.join(current_dir.split('/')[:-1])
-    elif path:
-        new_path = os.path.join(current_dir, path)
-        with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        if path == '..':
+            if current_dir:
+                current_dir = '/'.join(current_dir.rstrip('/').split('/')[:-1])
+        else:
+            new_path = os.path.join(current_dir, path).replace("\\", "/")
             if any(f.startswith(new_path + '/') for f in zip_ref.namelist()):
                 current_dir = new_path
+            else:
+                console.text_list.append(f"ERROR: Directory {path} not found")
+
+def command_ls(archive_path):
+    global current_dir
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        files_list = [f for f in zip_ref.namelist() if f.startswith(current_dir)]
+        for file in files_list:
+            display_name = file[len(current_dir):].strip("/")
+            console.text_list.append(display_name)
 
 def command_wc():
     pass

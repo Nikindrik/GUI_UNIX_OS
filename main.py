@@ -38,7 +38,7 @@ def main(user_name, archive_path, script_path):
 
     clock = pygame.time.Clock()
     console_output = console.ConsoleOutput(25, 18, 90, 600, 375)
-    inputbox = input_box.InputBox(10, 50, 615, 30, 25)
+    inputbox = input_box.InputBox(10, 50, 615, 30, 25, archive_path)  # Передаем путь к архиву
     done = False
 
     # Execute the startup script
@@ -54,15 +54,11 @@ def main(user_name, archive_path, script_path):
         console_output.draw(screen)
         inputbox.draw(screen)
 
-        # Display the user name in the console header
-        '''user_text = f"{user_name}@emulation:~$"
-        user_text_surface = inputbox.font.render(user_text, True, Color.text_white)
-        screen.blit(user_text_surface, (10, 10))'''
-
         pygame.display.flip()
         clock.tick(30)
 
     pygame.quit()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="UNIX GUI Emulation")
