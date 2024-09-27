@@ -41,7 +41,6 @@ def main(user_name, archive_path, script_path):
     inputbox = input_box.InputBox(10, 50, 615, 30, 25, archive_path)  # Передаем путь к архиву
     done = False
 
-    # Execute the startup script
     execute_startup_script(script_path, archive_path)
 
     while not done:
