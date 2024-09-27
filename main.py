@@ -3,7 +3,10 @@ import sys
 import input_box
 import console
 from color import Color as Color
-
+import zipfile
+import os
+import argparse
+import emulator
 
 pygame.init()
 
@@ -16,11 +19,30 @@ def alert_detah():
     pygame.quit()
     sys.exit()
 
-def main():
+def execute_startup_script(script_path, archive_path):
+    if os.path.exists(script_path):
+        with open(script_path, 'r') as script_file:
+            commands = script_file.readlines()
+            for command in commands:
+                command = command.strip()
+                if command:
+                    console.text_list.append(f"Executing command: {command}")
+                    emulator.Emulator(archive_path).read_command(command)
+    else:
+        console.text_list.append(f"ERROR: Startup script {script_path} not found.")
+
+def main(user_name, archive_path, script_path):
+    if not os.path.exists(archive_path):
+        console.text_list.append(f"ERROR: Archive {archive_path} not found.")
+        return
+
     clock = pygame.time.Clock()
     console_output = console.ConsoleOutput(25, 18, 90, 600, 375)
     inputbox = input_box.InputBox(10, 50, 615, 30, 25)
     done = False
+
+    # Execute the startup script
+    execute_startup_script(script_path, archive_path)
 
     while not done:
         for event in pygame.event.get():
@@ -32,10 +54,22 @@ def main():
         console_output.draw(screen)
         inputbox.draw(screen)
 
+        # Display the user name in the console header
+        '''user_text = f"{user_name}@emulation:~$"
+        user_text_surface = inputbox.font.render(user_text, True, Color.text_white)
+        screen.blit(user_text_surface, (10, 10))'''
+
         pygame.display.flip()
         clock.tick(30)
 
     pygame.quit()
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description="UNIX GUI Emulation")
+    parser.add_argument('--user', required=True, help="User name for console prompt")
+    parser.add_argument('--archive', required=True, help="Path to virtual filesystem archive")
+    parser.add_argument('--script', required=True, help="Path to startup script")
+
+    args = parser.parse_args()
+
+    main(args.user, args.archive, args.script)

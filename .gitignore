@@ -3,6 +3,7 @@
 
 .idea
 venv
+.venv
 
 ### Linux ###
 *~
