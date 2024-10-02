@@ -5,7 +5,6 @@ An emulator for the operating system language was created. The emulator's operat
 
 ```commandline
 git clone https://github.com/Nikindrik/GUI_UNIX_OS
-cd GUI_UNIX_OS
 python -m venv venv
 ```
 For windows
