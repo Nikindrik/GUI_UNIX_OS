@@ -1,14 +1,10 @@
 # GUI_UNIX_OS
 
----
-
 An emulator for the operating system language was created. The emulator's operation is similar to a shell session in a UNIX-like OS. The emulator accepts a virtual file system image in the form of a zip file.
 
 
 
 # 🖼️ Gallery
-
----
 
 ![img.png](source/img/img.png)
 
@@ -19,8 +15,6 @@ An emulator for the operating system language was created. The emulator's operat
 
 
 # 📘 Installation and running
-
----
 
 ```commandline
 git clone https://github.com/Nikindrik/GUI_UNIX_OS
@@ -45,8 +39,6 @@ python main.py --user nick --archive systeam.zip --script start.sh
 ```
 
 # 💻 Command in UNIX emulation
-
----
 
 * **Displays available commands and their brief descriptions** - `help`
 * **Lists directories and files in the current working directory** - `ls`
