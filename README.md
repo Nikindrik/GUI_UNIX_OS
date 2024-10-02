@@ -40,8 +40,6 @@ python main.py --user nick --archive systeam.zip --script start.sh
 
 ![img.png](source/img/img.png)
 
-![img.png](source/img/img_1.png)
-
 ![img.png](source/img/img_2.png)
 
 ---
