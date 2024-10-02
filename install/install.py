@@ -1,8 +1,8 @@
-import os
 import subprocess
+import os
 
 def install_requirements():
-    subprocess.check_call(['pip', 'install', '-r', 'requirements.txt'])
+    requirements_path = os.path.join(os.path.dirname(__file__), '../requirements.txt')
+    subprocess.check_call(['pip', 'install', '-r', requirements_path])
 
-if __name__ == "__main__":
-    install_requirements()
+install_requirements()
