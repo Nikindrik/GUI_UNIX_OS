@@ -2,18 +2,6 @@
 
 An emulator for the operating system language was created. The emulator's operation is similar to a shell session in a UNIX-like OS. The emulator accepts a virtual file system image in the form of a zip file.
 
-
-
-# 🖼️ Gallery
-
-![img.png](source/img/img.png)
-
-![img.png](source/img/img_1.png)
-
-![img.png](source/img/img_2.png)
-
-
-
 # 📘 Installation and running
 
 ```commandline
@@ -47,6 +35,14 @@ python main.py --user nick --archive systeam.zip --script start.sh
 * **Counts words, lines, or characters in a file** - `wc`
 * **Moves or renames files or directories** - `mv`
 * **Clears the console output screen** - `clear`
+
+# 🖼️ Gallery
+
+![img.png](source/img/img.png)
+
+![img.png](source/img/img_1.png)
+
+![img.png](source/img/img_2.png)
 
 ---
 
