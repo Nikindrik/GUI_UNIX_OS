@@ -50,6 +50,24 @@ def command_cd(path, archive_path):
             else:
                 console.text_list.append(f"ERROR: Directory {path} not found")
 
+
+# Команда wc для подсчета строк, слов и символов
+def command_wc(filename, archive_path):
+    with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+        file_path = os.path.join(current_dir, filename).replace("\\", "/")
+        if file_path in zip_ref.namelist():
+            with zip_ref.open(file_path) as file:
+                content = file.read().decode()
+                lines = content.splitlines()
+                words = content.split()
+                chars = len(content)
+
+                console.text_list.append(f"Lines: {len(lines)}")
+                console.text_list.append(f"Words: {len(words)}")
+                console.text_list.append(f"Characters: {chars}")
+        else:
+            console.text_list.append(f"ERROR: File {filename} not found")
+
 # Команда mv для перемещения файлов
 def command_mv(source, destination, archive_path):
     with zipfile.ZipFile(archive_path, 'a') as zip_ref:
