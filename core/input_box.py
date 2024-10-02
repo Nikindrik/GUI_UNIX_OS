@@ -1,7 +1,7 @@
 import pygame
-import console
-import emulator
-from color import Color
+from core import console
+from core import emulator
+from source.color import Color
 
 
 console_output = console.ConsoleOutput

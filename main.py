@@ -1,12 +1,11 @@
 import pygame
 import sys
-import input_box
-import console
-from color import Color as Color
-import zipfile
+from core import input_box
+from core import console
+from source.color import Color as Color
 import os
 import argparse
-import emulator
+from core import emulator
 
 pygame.init()
 

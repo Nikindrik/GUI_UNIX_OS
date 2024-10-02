@@ -1,7 +1,7 @@
-import console
+from core import console
 import zipfile
 import os
-import input_box  # Импортируем модуль input_box
+from core import input_box  # Импортируем модуль input_box
 
 files_list = []
 current_dir = "systeam/"  # Начальная директория

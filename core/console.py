@@ -1,6 +1,5 @@
 import pygame
-import sys
-from color import Color
+from source.color import Color
 
 
 text_list = []
