@@ -1,7 +1,7 @@
 import unittest
 
 from core import console
-from GUI_UNIX_OS.core.emulator import Emulator, current_dir
+from core.emulator import Emulator, current_dir
 import zipfile
 import os
 
