@@ -1,11 +1,10 @@
-<h1 align="center"> GUI_UNIX_OS  </h1>
+<h1 align="center"> GUI UNIX OS  </h1>
 An emulator for the operating system language was created. The emulator's operation is similar to a shell session in a UNIX-like OS. The emulator accepts a virtual file system image in the form of a zip file.
 
 # 📘 Installation and running
 
 ```commandline
 git clone https://github.com/Nikindrik/GUI_UNIX_OS
-cd GUI_UNIX_OS
 python -m venv venv
 ```
 For windows
