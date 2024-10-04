@@ -48,7 +48,7 @@ def main(user_name, archive_path, script_path):
                 done = True
             inputbox.handle_event(event)
 
-        screen.fill(Color.graphite_grey)
+        screen.fill(Color.back_ground)
         console_output.draw(screen)
         inputbox.draw(screen)
 

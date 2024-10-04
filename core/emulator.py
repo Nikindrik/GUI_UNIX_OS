@@ -25,7 +25,10 @@ def command_clear():
 # Команда для показа содержимого текущей директории
 def command_ls(archive_path):
     global current_dir
-    console.text_list.append(f"Listing directory: {current_dir}")
+    if current_dir == 'systeam/':
+        console.text_list.append("Listing directory: /")
+    else:
+        console.text_list.append(f"Listing directory: {current_dir[7:]}")
 
     with zipfile.ZipFile(archive_path, 'r') as zip_ref:
         files_list = [f[len(current_dir):].split('/')[0] for f in zip_ref.namelist() if
@@ -43,6 +46,8 @@ def command_cd(path, archive_path):
         if path == '..':
             if current_dir != 'systeam/':
                 current_dir = '/'.join(current_dir.rstrip('/').split('/')[:-1]) + '/'
+        elif path == "/":
+            current_dir = 'systeam/'
         else:
             new_path = os.path.join(current_dir, path).replace("\\", "/") + '/'
             if any(f.startswith(new_path) for f in zip_ref.namelist()):
