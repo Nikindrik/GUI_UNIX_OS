@@ -7,7 +7,6 @@ files_list = []
 current_dir = "systeam/"  # Начальная директория
 
 
-# Вывод используемых команд
 def command_help():
     console.text_list.append("List of commands:")
     console.text_list.append(" help - displays available commands and their brief descriptions")
@@ -18,11 +17,9 @@ def command_help():
     console.text_list.append(" mv - moves or renames files or directories")
     console.text_list.append(" clear - clears the console output screen")
 
-# Отчистка консоли
 def command_clear():
     console.text_list.clear()
 
-# Команда для показа содержимого текущей директории
 def command_ls(archive_path):
     global current_dir
     if current_dir == 'systeam/':
@@ -31,15 +28,11 @@ def command_ls(archive_path):
         console.text_list.append(f"Listing directory: {current_dir[7:]}")
 
     with zipfile.ZipFile(archive_path, 'r') as zip_ref:
-        files_list = [f[len(current_dir):].split('/')[0] for f in zip_ref.namelist() if
-                      f.startswith(current_dir) and f != current_dir]
-        files_list = sorted(set(files_list))  # Убираем дублирующиеся имена (директории)
-
+        files_list = [f[len(current_dir):].split('/')[0] for f in zip_ref.namelist() if f.startswith(current_dir) and f != current_dir]
+        files_list = sorted(set(files_list))
         for file in files_list:
             console.text_list.append(file)
 
-
-# Команда для перехода в директорию
 def command_cd(path, archive_path):
     global current_dir
     with zipfile.ZipFile(archive_path, 'r') as zip_ref:
@@ -54,7 +47,6 @@ def command_cd(path, archive_path):
                 current_dir = new_path
             else:
                 console.text_list.append(f"ERROR: Directory {path} not found")
-
 
 # Команда wc для подсчета строк, слов и символов
 def command_wc(filename, archive_path):
