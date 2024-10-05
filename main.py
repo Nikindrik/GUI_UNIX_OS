@@ -14,9 +14,6 @@ pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((650, 500))
 pygame.display.set_caption('UNIX GUI emulation')
 
-def alert_detah():
-    pygame.quit()
-    sys.exit()
 
 def execute_startup_script(script_path, archive_path):
     if os.path.exists(script_path):

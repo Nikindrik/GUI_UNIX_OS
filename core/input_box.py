@@ -5,8 +5,6 @@ from source.color import Color
 
 
 console_output = console.ConsoleOutput
-# emulator_obj = emulator.Emulator
-# Hotfix
 
 input_history = []
 history_step = 0
