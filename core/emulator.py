@@ -6,12 +6,68 @@ from core import console
 class Emulator:
     def __init__(self, archive_path):
         self.archive_path = archive_path
-        self.current_dir = "systeam/"  # Начальная директория
+        self.current_dir = "systeam/"  # Устанавливаем начальную директорию как "systeam"
         self.files_list = []
+        self.file_structure = {}  # Словарь для хранения структуры файловой системы
+        self.open_zip_sys()  # Инициализация файловой системы при создании объекта
 
-    # TODO: сделать чтобы был метод для сразу открытия зипки в методе
     def open_zip_sys(self):
-        pass
+        with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
+            for file in zip_ref.namelist():
+                if file.startswith('systeam/'):
+                    parts = file.split('/')[1:]  # Игнорируем корневую папку 'systeam'
+                    d = self.file_structure
+                    for part in parts[:-1]:
+                        d = d.setdefault(part, {})
+                    if parts[-1]:
+                        d[parts[-1]] = None  # Отмечаем как файл
+
+    def command_cd(self, path):
+        target_dir = ""
+        if path == '/':
+            target_dir = "systeam/"
+        elif path == '..':
+            # Переход на уровень выше, если это не корень
+            if self.current_dir != 'systeam/':
+                target_dir = '/'.join(self.current_dir.rstrip('/').split('/')[:-1]) + '/'
+            else:
+                target_dir = self.current_dir
+        else:
+            # Переход в поддиректорию внутри текущей
+            target_dir = os.path.join(self.current_dir, path).replace("\\", "/") + '/'
+
+        # Проверяем, существует ли целевая директория в структуре файловой системы
+        path_parts = target_dir.split('/')[1:]  # Игнорируем 'systeam' в начале пути
+        d = self.file_structure
+        for part in path_parts:
+            if part:
+                if part in d:
+                    d = d[part]
+                else:
+                    console.text_list.append(f"ERROR: Directory '{path}' not found")
+                    return
+
+        # Если путь существует, обновляем текущую директорию
+        print("ДО ", self.current_dir)
+        self.current_dir = target_dir
+        print("ПОСЛЕ", self.current_dir)
+        console.text_list.append(f"Changed directory to: /{self.current_dir[8:]}")
+
+    def command_ls(self):
+        print(self.current_dir)
+        path_parts = self.current_dir.split('/')[1:]  # Пропускаем 'systeam' в начале
+        d = self.file_structure
+        for part in path_parts:
+            if part:
+                d = d.get(part, {})
+
+        if isinstance(d, dict):
+            console.text_list.append(f"Listing directory: /{self.current_dir[8:]}")
+            self.files_list = sorted(d.keys())
+            for file in self.files_list:
+                console.text_list.append(file)
+        else:
+            console.text_list.append("ERROR: Not a directory")
 
     def command_help(self):
         console.text_list.append("List of commands:")
@@ -26,33 +82,24 @@ class Emulator:
     def command_clear(self):
         console.text_list.clear()
 
-    def command_ls(self):
-        if self.current_dir == 'systeam/':
-            console.text_list.append("Listing directory: /")
+    def read_command(self, command):
+        parts = command.split(" ")
+        if command == "help":
+            self.command_help()
+        elif command == "clear":
+            self.command_clear()
+        elif command == "exit":
+            exit()
+        elif command == "ls":
+            self.command_ls()
+        elif parts[0] == "cd" and len(parts) > 1:
+            self.command_cd(parts[1])
+        elif parts[0] == "wc" and len(parts) > 1:
+            self.command_wc(parts[1])
+        elif parts[0] == "mv" and len(parts) > 2:
+            self.command_mv(parts[1], parts[2])
         else:
-            console.text_list.append(f"Listing directory: {self.current_dir[7:]}")
-
-        with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
-            self.files_list = [f[len(self.current_dir):].split('/')[0]
-                               for f in zip_ref.namelist()
-                               if f.startswith(self.current_dir) and f != self.current_dir]
-            self.files_list = sorted(set(self.files_list))
-            for file in self.files_list:
-                console.text_list.append(file)
-
-    def command_cd(self, path):
-        with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
-            if path == '..':
-                if self.current_dir != 'systeam/':
-                    self.current_dir = '/'.join(self.current_dir.rstrip('/').split('/')[:-1]) + '/'
-            elif path == "/":
-                self.current_dir = 'systeam/'
-            else:
-                new_path = os.path.join(self.current_dir, path).replace("\\", "/") + '/'
-                if any(f.startswith(new_path) for f in zip_ref.namelist()):
-                    self.current_dir = new_path
-                else:
-                    console.text_list.append(f"ERROR: Directory {path} not found")
+            console.text_list.append("ERROR: Invalid command")
 
     def command_wc(self, filename):
         with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
@@ -91,6 +138,9 @@ class Emulator:
                 console.text_list.append(f"ERROR: File {source} not found")
 
     def read_command(self, command):
+        """
+        Читает и выполняет команду для работы с виртуальной файловой системой.
+        """
         parts = command.split(" ")
         if command == "help":
             self.command_help()
