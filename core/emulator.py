@@ -57,7 +57,8 @@ class Emulator:
         print("ДО ", self.current_dir)
         self.current_dir = target_dir
         print("ПОСЛЕ", self.current_dir)
-        console.text_list.append(f"Changed directory to: /{self.current_dir[8:]}")
+        console.text_list.append(
+        f"Changed directory to: /{self.current_dir[8:]}")  # Убираем 'systeam/' из отображаемого пути
 
     def command_ls(self):
         print(self.current_dir)
