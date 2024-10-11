@@ -1,4 +1,5 @@
 import zipfile
+from zipfile import BadZipFile
 import os
 from core import console
 
@@ -12,19 +13,21 @@ class Emulator:
         self.open_zip_sys()  # Инициализация файловой системы при создании объекта
 
     def open_zip_sys(self):
-        with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
-            for file in zip_ref.namelist():
-                if file.startswith('systeam/'):
-                    parts = file.split('/')[1:]  # Игнорируем корневую папку 'systeam'
-                    d = self.file_structure
-                    for part in parts[:-1]:
-                        d = d.setdefault(part, {})
-                    if parts[-1]:
-                        d[parts[-1]] = None  # Отмечаем как файл
+        try:
+            with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
+                for file in zip_ref.namelist():
+                    if file.startswith('systeam/'):
+                        parts = file.split('/')[1:]  # Игнорируем корневую папку 'systeam'
+                        d = self.file_structure
+                        for part in parts[:-1]:
+                            d = d.setdefault(part, {})
+                        if parts[-1]:
+                            d[parts[-1]] = None  # Отмечаем как файл
+        except BadZipFile:
+            console.text_list.append(f"Файл {self.archive_path} не является корректным zip-архивом.")
 
     def command_cd(self, path):
         target_dir = ""
-
         if path == '/':
             # Переход в корневую директорию
             target_dir = "systeam/"
@@ -52,13 +55,8 @@ class Emulator:
                 else:
                     console.text_list.append(f"ERROR: Directory '{path}' not found")
                     return
-
-        # Обновляем текущую директорию, если путь существует
-        print("ДО ", self.current_dir)
         self.current_dir = target_dir
-        print("ПОСЛЕ", self.current_dir)
-        console.text_list.append(
-        f"Changed directory to: /{self.current_dir[8:]}")  # Убираем 'systeam/' из отображаемого пути
+        console.text_list.append(f"Changed directory to: /{self.current_dir[8:]}")
 
     def command_ls(self):
         print(self.current_dir)
@@ -109,59 +107,43 @@ class Emulator:
             console.text_list.append("ERROR: Invalid command")
 
     def command_wc(self, filename):
-        with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
-            file_path = os.path.join(self.current_dir, filename).replace("\\", "/")
-            if file_path in zip_ref.namelist():
-                with zip_ref.open(file_path) as file:
-                    content = file.read().decode()
-                    lines = content.splitlines()
-                    words = content.split()
-                    chars = len(content)
+        try:
+            with zipfile.ZipFile(self.archive_path, 'r') as zip_ref:
+                file_path = os.path.join(self.current_dir, filename).replace("\\", "/")
+                if file_path in zip_ref.namelist():
+                    with zip_ref.open(file_path) as file:
+                        content = file.read().decode()
+                        lines = content.splitlines()
+                        words = content.split()
+                        chars = len(content)
 
-                    console.text_list.append(f"Lines: {len(lines)}")
-                    console.text_list.append(f"Words: {len(words)}")
-                    console.text_list.append(f"Characters: {chars}")
-            else:
-                console.text_list.append(f"ERROR: File {filename} not found")
+                        console.text_list.append(f"Lines: {len(lines)}")
+                        console.text_list.append(f"Words: {len(words)}")
+                        console.text_list.append(f"Characters: {chars}")
+                else:
+                    console.text_list.append(f"ERROR: File {filename} not found")
+        except BadZipFile:
+            console.text_list.append(f"Файл {self.archive_path} не является корректным zip-архивом.")
 
     def command_mv(self, source, destination):
-        with zipfile.ZipFile(self.archive_path, 'a') as zip_ref:
-            source_path = os.path.join(self.current_dir, source).replace("\\", "/")
-            dest_path = os.path.join(self.current_dir, destination).replace("\\", "/")
+        try:
+            with zipfile.ZipFile(self.archive_path, 'a') as zip_ref:
+                source_path = os.path.join(self.current_dir, source).replace("\\", "/")
+                dest_path = os.path.join(self.current_dir, destination).replace("\\", "/")
 
-            if source_path in zip_ref.namelist():
-                with zip_ref.open(source_path) as src_file:
-                    content = src_file.read()
+                if source_path in zip_ref.namelist():
+                    with zip_ref.open(source_path) as src_file:
+                        content = src_file.read()
 
-                zip_ref.writestr(dest_path, content)
-                # Удаляем старый файл
-                with zipfile.ZipFile(self.archive_path, 'w') as zf:
-                    for item in zip_ref.infolist():
-                        if item.filename != source_path:
-                            zf.writestr(item, zip_ref.read(item.filename))
+                    zip_ref.writestr(dest_path, content)
+                    # Удаляем старый файл
+                    with zipfile.ZipFile(self.archive_path, 'w') as zf:
+                        for item in zip_ref.infolist():
+                            if item.filename != source_path:
+                                zf.writestr(item, zip_ref.read(item.filename))
 
-                console.text_list.append(f"Moved {source} to {destination}")
-            else:
-                console.text_list.append(f"ERROR: File {source} not found")
-
-    def read_command(self, command):
-        """
-        Читает и выполняет команду для работы с виртуальной файловой системой.
-        """
-        parts = command.split(" ")
-        if command == "help":
-            self.command_help()
-        elif command == "clear":
-            self.command_clear()
-        elif command == "exit":
-            exit()
-        elif command == "ls":
-            self.command_ls()
-        elif parts[0] == "cd" and len(parts) > 1:
-            self.command_cd(parts[1])
-        elif parts[0] == "wc" and len(parts) > 1:
-            self.command_wc(parts[1])
-        elif parts[0] == "mv" and len(parts) > 2:
-            self.command_mv(parts[1], parts[2])
-        else:
-            console.text_list.append("ERROR: Invalid command")
+                    console.text_list.append(f"Moved {source} to {destination}")
+                else:
+                    console.text_list.append(f"ERROR: File {source} not found")
+        except BadZipFile:
+            console.text_list.append(f"Файл {self.archive_path} не является корректным zip-архивом.")
