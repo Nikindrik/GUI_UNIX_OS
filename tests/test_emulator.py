@@ -1,71 +1,103 @@
 import unittest
 import zipfile
 import os
+from io import BytesIO
+from core import console
 from core import emulator
 
 
 class TestEmulator(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
-        # Create a temporary zip file for testing
-        cls.test_zip_path = 'test_fs.zip'
-        with zipfile.ZipFile(cls.test_zip_path, 'w') as zf:
-            zf.writestr('systeam/text.txt', 'This is a test file.\nIt has several lines.\nAnd some words.')
-            zf.writestr('systeam/dir1/a.txt', 'Another test file in a subdirectory.')
+        # Создаем виртуальный zip-файл в памяти для тестов
+        cls.memory_zip = BytesIO()
+        with zipfile.ZipFile(cls.memory_zip, 'w') as zf:
+            zf.writestr('systeam/file1.txt', 'Hello World\nThis is a test file.')
+            zf.writestr('systeam/dir1/file2.txt', 'Another file in a subdirectory.')
+            zf.writestr('systeam/dir1/dir2/file3.txt', 'Nested directory file.')
+
+        # Сохраняем данные zip-файла в памяти
+        cls.memory_zip.seek(0)
+
+        # Сохраняем путь к виртуальной файловой системе
+        cls.archive_path = 'test_virtual_fs.zip'
+
+        # Записываем виртуальный zip-файл на диск для использования в тестах
+        with open(cls.archive_path, 'wb') as f:
+            f.write(cls.memory_zip.read())
 
     @classmethod
     def tearDownClass(cls):
-        os.remove(cls.test_zip_path)
+        # Удаляем созданный архив после завершения всех тестов
+        if os.path.exists(cls.archive_path):
+            os.remove(cls.archive_path)
 
     def setUp(self):
-        self.emulator = emulator.Emulator(self.test_zip_path)
+        # Перед каждым тестом сбрасываем вывод консоли
+        console.text_list = []
 
-    def test_ls(self):
-        # Test listing files in the root directory
-        self.emulator.read_command('ls')
-        self.assertIn('dir1', emulator.console.text_list)
-        self.assertIn('text.txt', emulator.console.text_list)
+        # Создаем новый экземпляр эмулятора перед каждым тестом
+        self.emulator = emulator(self.archive_path)
 
-    def test_cd(self):
-        # Test changing directory to 'dir1'
-        self.emulator.read_command('cd dir1')
-        self.assertEqual(emulator.current_dir, 'systeam/dir1/')
+    def test_cd_root(self):
+        # Проверка перехода в корневую директорию
+        self.emulator.command_cd('/')
+        self.assertEqual(self.emulator.current_dir, 'systeam/')
+        self.assertIn('Changed directory to: /', console.text_list[-1])
 
-        # Test changing back to root
-        self.emulator.read_command('cd ..')
-        self.assertEqual(emulator.current_dir, 'systeam/')
+    def test_cd_subdir(self):
+        # Проверка перехода в поддиректорию
+        self.emulator.command_cd('dir1')
+        self.assertEqual(self.emulator.current_dir, 'systeam/dir1/')
+        self.assertIn('Changed directory to: /dir1/', console.text_list[-1])
 
-        # Test invalid directory change
-        self.emulator.read_command('cd non_existent_dir')
-        self.assertIn('ERROR: Directory non_existent_dir not found', emulator.console.text_list)
+    def test_cd_up_directory(self):
+        # Проверка перехода на уровень выше
+        self.emulator.command_cd('dir1')
+        self.emulator.command_cd('..')
+        self.assertEqual(self.emulator.current_dir, 'systeam/')
+        self.assertIn('Changed directory to: /', console.text_list[-1])
+
+    def test_ls_root(self):
+        # Проверка вывода содержимого корневой директории
+        self.emulator.command_ls()
+        self.assertIn('Listing directory: /', console.text_list)
+        self.assertIn('file1.txt', console.text_list)
+        self.assertIn('dir1', console.text_list)
+
+    def test_ls_subdir(self):
+        # Проверка вывода содержимого поддиректории
+        self.emulator.command_cd('dir1')
+        self.emulator.command_ls()
+        self.assertIn('Listing directory: /dir1/', console.text_list)
+        self.assertIn('file2.txt', console.text_list)
+        self.assertIn('dir2', console.text_list)
 
     def test_wc(self):
-        # Test word, line, and character count for 'text.txt'
-        self.emulator.read_command('wc text.txt')
-        self.assertIn('Lines: 3', emulator.console.text_list)
-        self.assertIn('Words: 12', emulator.console.text_list)
-        self.assertIn('Characters: 45', emulator.console.text_list)
+        # Проверка подсчета строк, слов и символов в файле
+        self.emulator.command_wc('file1.txt')
+        self.assertIn('Lines: 2', console.text_list)
+        self.assertIn('Words: 6', console.text_list)
+        self.assertIn('Characters: 29', console.text_list)
 
-        # Test word count for non-existent file
-        self.emulator.read_command('wc nonexistent.txt')
-        self.assertIn('ERROR: File nonexistent.txt not found', emulator.console.text_list)
+    def test_invalid_cd(self):
+        # Проверка ошибки при переходе в несуществующую директорию
+        self.emulator.command_cd('nonexistent')
+        self.assertIn("ERROR: Directory 'nonexistent' not found", console.text_list)
 
-    def test_mv(self):
-        # Test moving 'text.txt' to 'dir1'
-        self.emulator.read_command('mv text.txt dir1/text_moved.txt')
-        self.assertIn('Moved text.txt to dir1/text_moved.txt', emulator.console.text_list)
+    def test_invalid_wc(self):
+        # Проверка ошибки при попытке прочитать несуществующий файл
+        self.emulator.command_wc('nonexistent.txt')
+        self.assertIn('ERROR: File nonexistent.txt not found', console.text_list)
 
-        # Test if the moved file exists in the new location
-        self.emulator.read_command('ls dir1')
-        self.assertIn('text_moved.txt', emulator.console.text_list)
-
-        # Test if the original file is removed
-        self.emulator.read_command('ls')
-        self.assertNotIn('text.txt', emulator.console.text_list)
-
-        # Test invalid move
-        self.emulator.read_command('mv nonexistent.txt dir1/')
-        self.assertIn('ERROR: File nonexistent.txt not found', emulator.console.text_list)
+    def test_mv_file(self):
+        # Проверка перемещения файла в новую директорию
+        self.emulator.command_mv('file1.txt', 'dir1/file1_moved.txt')
+        self.emulator.command_cd('dir1')
+        self.emulator.command_ls()
+        self.assertIn('file1_moved.txt', console.text_list)
+        self.assertNotIn('file1.txt', console.text_list)
 
 
 if __name__ == '__main__':

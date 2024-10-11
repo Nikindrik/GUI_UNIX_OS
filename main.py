@@ -14,9 +14,6 @@ pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((650, 500))
 pygame.display.set_caption('UNIX GUI emulation')
 
-def alert_detah():
-    pygame.quit()
-    sys.exit()
 
 def execute_startup_script(script_path, archive_path):
     if os.path.exists(script_path):
@@ -37,7 +34,9 @@ def main(user_name, archive_path, script_path):
 
     clock = pygame.time.Clock()
     console_output = console.ConsoleOutput(25, 18, 90, 600, 375)
-    inputbox = input_box.InputBox(10, 50, 615, 30, 25, archive_path)  # Передаем путь к архиву
+
+    emulator_instance = emulator.Emulator(archive_path)  # Создаем один экземпляр эмулятора
+    inputbox = input_box.InputBox(10, 50, 615, 30, 25, emulator_instance)  # Передаем экземпляр эмулятора в InputBox
     done = False
 
     execute_startup_script(script_path, archive_path)

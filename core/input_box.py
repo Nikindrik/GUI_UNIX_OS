@@ -5,15 +5,12 @@ from source.color import Color
 
 
 console_output = console.ConsoleOutput
-# emulator_obj = emulator.Emulator
-# Hotfix
 
 input_history = []
 history_step = 0
 
-
 class InputBox:
-    def __init__(self, x, y, w, h, font_size, archive_path):  # Добавляем archive_path
+    def __init__(self, x, y, w, h, font_size, emulator_instance):  # Добавляем объект эмулятора
         self.rect = pygame.Rect(x, y, w, h)
         self.color_inactive = (0, 0, 0)
         self.color_active = Color.anactice_white
@@ -23,7 +20,7 @@ class InputBox:
         self.font = pygame.font.Font(None, font_size)
         self.txt_surface = self.font.render(self.text, True, self.color)
         self.min_w = w
-        self.archive_path = archive_path  # Храним путь к архиву
+        self.emulator = emulator_instance  # Сохраняем объект эмулятора
 
     def handle_event(self, event):
         global history_step
@@ -38,7 +35,7 @@ class InputBox:
             if self.active:
                 if event.key == pygame.K_RETURN:
                     if self.text != '':
-                        emulator.Emulator(self.archive_path).read_command(self.text)  # Передаем путь архива
+                        self.emulator.read_command(self.text)  # Используем существующий объект эмулятора
                         self.text = ''
                 elif event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
