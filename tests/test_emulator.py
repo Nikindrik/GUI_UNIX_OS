@@ -5,7 +5,6 @@ import os
 import zipfile
 
 class TestEmulator(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         # Создаем тестовый ZIP-файл для эмуляции файловой системы
@@ -15,6 +14,7 @@ class TestEmulator(unittest.TestCase):
             zipf.writestr('systeam/file3.txt', 'Another file in a subdirectory_')
             zipf.writestr('systeam/file1.txt', 'Hello World\nThis is a test file')  # Создание файла
             zipf.writestr('systeam/dir1/file2.txt', 'Another file in a subdirectory')
+            zipf.writestr('systeam/dir1/file5.txt', 'Another file in a subdirectory NOT FAKE')
 
     def setUp(self):
         # Создаем новый экземпляр эмулятора для каждого теста и очищаем консольный вывод
@@ -49,6 +49,7 @@ class TestEmulator(unittest.TestCase):
         self.assertIn("Changed directory to: /dir1/", console.text_list[0])
         self.assertIn("Listing directory: /dir1/", console.text_list[1])
         self.assertIn("file2.txt", console.text_list[2])
+
     def test_ls_not_a_directory(self):
         self.emulator.command_cd('file1.txt')
         self.emulator.command_ls()
@@ -72,14 +73,14 @@ class TestEmulator(unittest.TestCase):
         self.emulator.command_wc('nonexistent.txt')
         self.assertIn("ERROR: File nonexistent.txt not found", console.text_list)
 
-    '''
     def test_mv_file_within_directory(self):
         self.emulator.command_mv('file3.txt', 'file3_moved.txt')
         self.assertIn("Moved file3.txt to file3_moved.txt", console.text_list)
     def test_mv_file_in_subdirectory(self):
         self.emulator.command_cd('dir1')
-        self.emulator.command_mv('file2.txt', 'file2_moved.txt')
-        self.assertIn("Moved file2.txt to file2_moved.txt", console.text_list)'''
+        self.emulator.command_mv('file5.txt', 'file5_moved.txt')
+        self.assertIn("Moved file5.txt to file5_moved.txt", console.text_list)
+
     def test_mv_nonexistent_file(self):
         self.emulator.command_mv('nonexistent.txt', 'file3.txt')
         self.assertIn("ERROR: File nonexistent.txt not found", console.text_list)
