@@ -9,11 +9,13 @@ python -m venv venv
 ```
 For windows
 ```commandline
-.\venv\Scripts\activate   
+.\venv\Scripts\activate
+pip3 install pygame
 ```
 For linux/UNIX/MAC
 ```commandline
 source venv/bin/activate
+pip3 install pygame
 ```
 Run
 ```commandline
