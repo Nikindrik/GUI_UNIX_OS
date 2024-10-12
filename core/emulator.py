@@ -59,7 +59,6 @@ class Emulator:
         console.text_list.append(f"Changed directory to: /{self.current_dir[8:]}")
 
     def command_ls(self):
-        print(self.current_dir)
         path_parts = self.current_dir.split('/')[1:]  # Пропускаем 'systeam' в начале
         d = self.file_structure
         for part in path_parts:
